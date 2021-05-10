@@ -2,7 +2,13 @@
 use piston_window::*;
 use cgmath::*;
 
-use std::f64::consts::PI;
+use std::{f64::consts::PI, ops::Div};
+
+
+fn new_vec2_with_angle(len: f64, angle: f64 /*in radians*/) -> Vector2<f64>
+{
+    Vector2::new(angle.cos() * len, angle.sin() * len)    
+}
 
 pub struct PID
 {
@@ -14,21 +20,6 @@ pub struct PID
     pub kp  : f64,
     pub kd  : f64,
     pub ki  : f64,
-}
-
-pub struct Grass
-{
-    pub grass   : Line,
-    pub origin  : Vector2<f64>,
-    pub angle   : f64,
-    pub length  : f64,
-    pub radius  : f64, 
-    pub pid     : PID,
-}
-
-fn new_vec2_with_angle(len: f64, angle: f64 /*in radians*/) -> Vector2<f64>
-{
-    Vector2::new(angle.cos() * len, angle.sin() * len)    
 }
 
 impl PID
@@ -43,14 +34,24 @@ impl PID
     }
 }
 
-impl Grass
+pub struct PidLine
+{
+    pub line        : Line,
+    pub position    : Vector2<f64>,
+    pub angle       : f64,
+    pub length      : f64,
+    pub radius      : f64, 
+    pub pid         : PID,
+}
+
+impl PidLine
 {
     pub fn new(
-            origin  : Vector2<f64>,
+            position  : Vector2<f64>,
             angle   : f64,
             length  : f64,
             radius  : f64
-        ) -> Grass
+        ) -> PidLine
     {
         let l: Line = Line {
             color   : [0.0, 0.8, 0.0, 1.0], 
@@ -70,17 +71,17 @@ impl Grass
             kd  : 0.001f64,
         };
 
-        let grass: Grass = Grass
+        let pid_line: PidLine = PidLine
         {
-            grass   : l,
-            origin  : origin,
+            line   : l,
+            position  : position,
             angle   : angle,
             length  : length,
             radius  : radius,
             pid     : pid,
         };
 
-        grass
+        pid_line
     }
 
     pub fn update(&mut self, u: UpdateArgs)
@@ -100,15 +101,40 @@ impl Grass
 
     pub fn draw(&self, c : Context, g : &mut G2d)
     {        
-        let start: Vector2<f64> = self.origin;  
+        let start: Vector2<f64> = self.position;  
 
         let end: Vector2<f64> = new_vec2_with_angle(self.length, -self.angle + PI/2f64);
 
-        self.grass.draw(
+        self.line.draw(
                 [start.x, start.y, start.x + end.x, start.y - end.y], 
                 &Default::default(), 
                 c.transform, 
                 g
             );
+    }
+}
+
+pub struct Grass
+{
+    pub pid_lines : Vec<PidLine>,
+}
+
+impl Grass
+{
+    pub fn draw()
+    {
+        //loop through all grass items and draw them one by one
+    }
+
+    pub fn update()
+    {
+        //1) calculate all lengths for the grass
+
+        /*
+        2) calculate all start positions for the grass 
+            parts for this the pid system is needed  
+        */
+
+        //3) 
     }
 }
