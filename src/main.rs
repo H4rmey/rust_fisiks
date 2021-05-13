@@ -1,11 +1,13 @@
 extern crate piston_window;
 
 mod grass;
+mod pid_line;
 
-use std::f64::consts::PI;
 use piston_window::*;
 use cgmath::*;
 use grass::*;
+
+use std::{f64::consts::PI};
 
 fn main() 
 {
@@ -15,11 +17,21 @@ fn main()
             .build()
             .unwrap_or_else(|e| { panic!("Failed to build PistonWindow: {}", e) });
 
-    let mut grass: PidLine = PidLine::new(Vector2::new(320.0, 400.0), PI/4f64, 80f64, 2f64);
+    // let mut grass: PidLine = PidLine::new(Vector2::new(320.0, 400.0), PI/4f64, 80f64, 2f64);
     
     let mut mouse_position: Vector2<f64> = Vector2::new(0f64,0f64);
     let mut is_pressed: bool = false;
         
+    let mut grass: Grass = Grass::new(
+                            80, 
+                            5, 
+                            2f64,
+                            Vector2::new(320.0, 400.0),
+                            1f64
+                        );
+    
+    grass.init();
+
     while let Some(e) = window.next() 
     {
         if let Some(_) = e.render_args()
@@ -29,6 +41,8 @@ fn main()
                 clear([0.0, 0.0, 0.0, 0.0], g);
                 
                 grass.draw(c, g);
+                grass.pid_lines[0].draw(c, g);
+                grass.pid_lines[4].draw(c, g);
             });
         }     
 
@@ -42,12 +56,12 @@ fn main()
             {
                 let y: f64 = mouse_position.y - grass.position.y;
                 let x: f64 = mouse_position.x - grass.position.x;
-                grass.angle = y.atan2(x) + PI/2f64;
+                grass.update_angle(y.atan2(x) + PI/2f64);
                 // grass.pid.log();
                 // print!("{}, {}\n", mouse_position.x, mouse_position.y);
             }  
             
-            grass.position.x += 10f64 * u.dt;
+            // grass.position.x += 10f64 * u.dt;
         }
 
         if let Some(args) = e.mouse_cursor_args()
