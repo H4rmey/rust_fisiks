@@ -51,6 +51,8 @@ fn main()
 
         if let Some(u) = e.update_args()
         {
+            // grass.update(u);
+            
             if !is_pressed 
             {
                 grass.update(u);
@@ -59,12 +61,8 @@ fn main()
             {
                 let y: f64 = mouse_position.y - grass.position.y;
                 let x: f64 = mouse_position.x - grass.position.x;
-                grass.update_angle(y.atan2(x) + PI/2f64);
-                // grass.pid.log();
-                // print!("{}, {}\n", mouse_position.x, mouse_position.y);
+                grass.angle = y.atan2(x) + PI/2f64;
             }  
-            
-            // grass.position.x += 10f64 * u.dt;
         }
 
         if let Some(args) = e.mouse_cursor_args()

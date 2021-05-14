@@ -104,9 +104,9 @@ impl PidLine
             derivative : 0f64,
             integral   : 0f64,
         
-            kp  : 0.97f64,
+            kp  : 0.99f64,
             ki  : 0.4f64,
-            kd  : 0.001f64,
+            kd  : 0.01f64,
         };
 
         let pid_line: PidLine = PidLine
@@ -135,20 +135,22 @@ impl PidLine
         self.pid.derivative = self.pid.error - self.pid.error_old;
         self.pid.integral   += -self.pid.error * u.dt;
 
-        self.angle = self.pid.error;
+        self.angle = self.pid.error;        
+
+
+        let start: Vector2<f64> = self.position;
+        let end: Vector2<f64> = new_vec2_with_angle(self.length, -self.angle + PI/2f64);
+        
+        self.end_point = Vector2::new(end.x + start.x, start.y- end.y);  
     }
 
     pub fn draw(&mut self, c : Context, g : &mut G2d)
     {                
         let start: Vector2<f64> = self.position;
-
-        let end: Vector2<f64> = new_vec2_with_angle(self.length, -self.angle + PI/2f64);
-
-        
-        self.end_point = Vector2::new(end.x + start.x, start.y- end.y);  
+        let end: Vector2<f64> = self.end_point;
 
         self.line.draw(
-                [start.x, start.y, start.x + end.x, start.y - end.y], 
+                [start.x, start.y, end.x, end.y], 
                 &Default::default(), 
                 c.transform, 
                 g

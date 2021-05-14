@@ -15,7 +15,8 @@ pub struct Grass
     pub line_amount         : usize, 
     pub ratio               : f64,
     pub position            : Vector2<f64>,
-    pub radius              : f64
+    pub radius              : f64,
+    pub angle               : f64
 }
 
 impl Grass
@@ -25,7 +26,7 @@ impl Grass
             line_amount         : usize, 
             ratio               : f64,
             position            : Vector2<f64>,
-            radius              : f64
+            radius              : f64,
         )-> Grass
     {
         Grass
@@ -37,7 +38,8 @@ impl Grass
             line_amount         : line_amount,
             ratio               : ratio,
             position            : position,
-            radius              : radius
+            radius              : radius,
+            angle               : PI/4f64
         }
     }
 
@@ -88,7 +90,7 @@ impl Grass
         {
             self.pid_lines.push(PidLine::new(
                                         Vector2::new(320.0, 400.0), 
-                                        PI/4f64, 
+                                        self.angle, 
                                         self.part_lengths[i], 
                                         self.radius 
                                     )
@@ -100,9 +102,11 @@ impl Grass
     {   
         for i in 0..self.line_amount
         {
+            /*set the length and thiccness of the parts. */
             self.pid_lines[i].length = self.part_lengths[i];
             self.pid_lines[i].radius = self.radius;
 
+            /*set the positions of each part*/
             if i == 0
             {
                 self.pid_lines[i].position = self.position;
@@ -111,16 +115,8 @@ impl Grass
             {
                 self.pid_lines[i].position = self.pid_lines[i-1].end_point;
             }
-
+            
             self.pid_lines[i].update(u);
         }
-    } 
-    
-    pub fn update_angle(&mut self, angle : f64)
-    {
-        for i in 0..self.line_amount
-        {
-            self.pid_lines[i].angle = angle;
-        }
-    }
+    }   
 }
