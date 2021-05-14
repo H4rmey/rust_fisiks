@@ -100,23 +100,20 @@ impl Grass
 
     pub fn update(&mut self, u: UpdateArgs)
     {   
-        for i in 0..self.line_amount
+        self.pid_lines[0].length    = self.part_lengths[0];
+        self.pid_lines[0].radius    = self.radius;
+        self.pid_lines[0].position  = self.position;
+        self.pid_lines[0].update(u);
+
+        for i in 1..self.line_amount-1
         {
             /*set the length and thiccness of the parts. */
-            self.pid_lines[i].length = self.part_lengths[i];
-            self.pid_lines[i].radius = self.radius;
+            self.pid_lines[i].length    = self.part_lengths[i];
+            self.pid_lines[i].radius    = self.radius;
+            self.pid_lines[i].angle     = self.pid_lines[i-1].angle;
+            self.pid_lines[i].position  = self.pid_lines[i-1].end_point;
 
             /*set the positions of each part*/
-            if i == 0
-            {
-                self.pid_lines[i].position = self.position;
-            }
-            else
-            {
-                self.pid_lines[i].position = self.pid_lines[i-1].end_point;
-            }
-            
-            self.pid_lines[i].update(u);
-        }
+        }   
     }   
 }
