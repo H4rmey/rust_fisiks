@@ -9,9 +9,14 @@ use grass::*;
 
 use std::{f64::consts::PI};
 
+
 fn main() 
 {
-    let mut window: PistonWindow = WindowSettings::new("Hello Piston!", (640, 480))
+    #![allow(non_snake_case)]
+    let WIDTH   : f64 = 1280f64;
+    let HEIGHT  : f64 = 720f64;
+
+    let mut window: PistonWindow = WindowSettings::new("Hello Piston!", (WIDTH, HEIGHT))
             .exit_on_esc(true)
             .resizable(false)
             .build()
@@ -23,11 +28,11 @@ fn main()
     let mut is_pressed: bool = false;
         
     let mut grass: Grass = Grass::new(
-                            80, 
+                            350, 
                             5, 
                             2f64,
-                            Vector2::new(320.0, 400.0),
-                            1f64
+                            Vector2::new(WIDTH/2f64, 600.0),
+                            4f64
                         );
     
     grass.init();
@@ -41,8 +46,6 @@ fn main()
                 clear([0.0, 0.0, 0.0, 0.0], g);
                 
                 grass.draw(c, g);
-                grass.pid_lines[0].draw(c, g);
-                grass.pid_lines[4].draw(c, g);
             });
         }     
 

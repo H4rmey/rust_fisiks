@@ -144,7 +144,8 @@ impl PidLine
 
         let end: Vector2<f64> = new_vec2_with_angle(self.length, -self.angle + PI/2f64);
 
-        self.end_point = end;  
+        
+        self.end_point = Vector2::new(end.x + start.x, start.y- end.y);  
 
         self.line.draw(
                 [start.x, start.y, start.x + end.x, start.y - end.y], 

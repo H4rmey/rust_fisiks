@@ -51,7 +51,7 @@ impl Grass
         let mut l: Vec<f64> = Vec::new();
 
         let mut sum: f64 = 0f64;
-        for i in 0..line_amount
+        for i in (0..line_amount).rev()
         {
             let value: f64 = ratio.powf(i as f64 + 1f64);
             l.push(value);
@@ -59,7 +59,7 @@ impl Grass
             sum += value;
         }
 
-        let r: f64 = sum/total_line_length as f64;
+        let r: f64 = total_line_length as f64/sum;
         for i in 0..line_amount
         {
             l[i] *= r;
@@ -78,12 +78,12 @@ impl Grass
 
     pub fn init(&mut self)
     {
-        self.part_lengths = vec![20f64,20f64,20f64,20f64,20f64];
-        // Grass::calc_lengths(
-        //                                 self.total_line_length,
-        //                                 self.line_amount,
-        //                                 self.ratio
-        //                             );
+        // self.part_lengths = vec![128f64,64f64,32f64,16f64, 8f64];
+        self.part_lengths = Grass::calc_lengths(
+                                        self.total_line_length,
+                                        self.line_amount,
+                                        self.ratio
+                                    );
         for i in 0..self.line_amount
         {
             self.pid_lines.push(PidLine::new(
