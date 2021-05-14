@@ -104,12 +104,15 @@ impl Grass
         }
     }
 
-    pub fn update(&mut self, u: UpdateArgs)
+    pub fn update(&mut self, u: UpdateArgs, do_update_pid: bool)
     {   
         self.pid_lines[0].length    = self.part_lengths[0];
         self.pid_lines[0].radius    = self.radius;
         self.pid_lines[0].position  = self.position;
-        self.pid_lines[0].update(u);
+        if do_update_pid
+        {
+            self.pid_lines[0].update(u);
+        }
 
         for i in 1..self.line_amount
         {
