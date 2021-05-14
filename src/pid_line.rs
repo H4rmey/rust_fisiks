@@ -42,7 +42,7 @@ pub struct PidLine
     pub angle       : f64,
     pub length      : f64,
     pub radius      : f64, 
-    pub pid         : PID,
+    pub pid         : PID
 }
 
 impl PidLine
@@ -76,7 +76,7 @@ impl PidLine
             angle       : 0f64,
             length      : 0f64,
             radius      : 0f64,
-            pid         : pid,
+            pid         : pid
         };
 
         pid_line
@@ -88,11 +88,12 @@ impl PidLine
             position  : Vector2<f64>,
             angle   : f64,
             length  : f64,
-            radius  : f64
+            radius  : f64,
+            color   : [f32; 4]
         ) -> PidLine
     {
         let l: Line = Line {
-            color   : [0.0, 0.8, 0.0, 1.0], 
+            color   : color,
             radius  : radius,
             shape   : line::Shape::Square,
         };

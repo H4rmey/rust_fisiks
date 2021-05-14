@@ -2,9 +2,14 @@
 use piston_window::*;
 use cgmath::*;
 
-use crate::pid_line::PidLine;
+use crate::pid_line::*;
 use std::{f64::consts::PI};
 
+
+fn new_vec2_with_angle(len: f64, angle: f64 /*in radians*/) -> Vector2<f64>
+{
+    Vector2::new(angle.cos() * len, angle.sin() * len)    
+}
 
 pub struct Grass
 {
@@ -92,7 +97,8 @@ impl Grass
                                         Vector2::new(320.0, 400.0), 
                                         self.angle, 
                                         self.part_lengths[i], 
-                                        self.radius 
+                                        self.radius,
+                                        [0.0, 0.5+i as f32/10f32, 0.0, 1.0] 
                                     )
                                 );
         }
@@ -105,15 +111,18 @@ impl Grass
         self.pid_lines[0].position  = self.position;
         self.pid_lines[0].update(u);
 
-        for i in 1..self.line_amount-1
+        for i in 1..self.line_amount
         {
             /*set the length and thiccness of the parts. */
             self.pid_lines[i].length    = self.part_lengths[i];
             self.pid_lines[i].radius    = self.radius;
-            self.pid_lines[i].angle     = self.pid_lines[i-1].angle;
+            self.pid_lines[i].angle     = self.pid_lines[i-1].angle + self.pid_lines[0].angle/self.ratio;            
+
             self.pid_lines[i].position  = self.pid_lines[i-1].end_point;
 
-            /*set the positions of each part*/
+            let end: Vector2<f64> = new_vec2_with_angle(self.pid_lines[i].length, -self.pid_lines[i].angle + PI/2f64);
+            let start: Vector2<f64> = self.pid_lines[i].position;
+            self.pid_lines[i].end_point = Vector2::new(end.x + start.x, start.y- end.y);
         }   
     }   
 }
