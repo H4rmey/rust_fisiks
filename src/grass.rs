@@ -44,7 +44,7 @@ impl Grass
             ratio               : ratio,
             position            : position,
             radius              : radius,
-            angle               : PI/4f64
+            angle               : 0f64
         }
     }
 

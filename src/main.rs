@@ -3,6 +3,7 @@ extern crate piston_window;
 mod grass;
 mod pid_line;
 
+use pid_line::PID;
 use piston_window::*;
 use cgmath::*;
 use grass::*;
@@ -25,11 +26,16 @@ fn main()
     // let mut grass: PidLine = PidLine::new(Vector2::new(320.0, 400.0), PI/4f64, 80f64, 2f64);
     
     let mut mouse_position: Vector2<f64> = Vector2::new(0f64,0f64);
-    let mut is_pressed: bool = false;
+    let mut left_click: bool = false;
+
+    let mut right_click: bool = false;
+    let mut right_click_flag : bool = true;
+    let mut timer: f64 = 0.0;
+    let mut pid_clone: PID = PID::empty();
         
     let mut grass: Grass = Grass::new(
                             350, 
-                            5, 
+                            6, 
                             2f64,
                             Vector2::new(WIDTH/2f64, 600.0),
                             4f64
@@ -54,12 +60,38 @@ fn main()
             // grass.update(u);            
             grass.update(u, true);
         
-            if is_pressed
+            if left_click
             {
                 let y: f64 = mouse_position.y - grass.position.y;
                 let x: f64 = mouse_position.x - grass.position.x;
                 grass.pid_lines[0].angle = y.atan2(x) + PI/2f64;
                 grass.pid_lines[0].pid.integral = 0.0;
+            }
+
+            let force : f64 = 0.1;
+
+            if right_click && right_click_flag
+            {
+                right_click_flag = false;
+
+                grass.pid_lines[0].angle = force*PI/180f64;    
+
+                grass.pid_lines[0].pid.kd *= -1f64;
+                grass.pid_lines[0].pid.ki *= -10f64;
+                grass.pid_lines[0].pid.kp *= -1f64;
+            }
+
+            if !right_click_flag
+            {
+                timer += u.dt;
+            }
+            if timer > force
+            {
+                right_click_flag = true;
+                timer = 0f64;
+                grass.pid_lines[0].pid.kd = grass.pid_lines[0].pid.kd.abs();
+                grass.pid_lines[0].pid.ki = grass.pid_lines[0].pid.ki.abs()/10f64;
+                grass.pid_lines[0].pid.kp = grass.pid_lines[0].pid.kp.abs();
             }
         }
 
@@ -71,12 +103,22 @@ fn main()
 
         if let Some(Button::Mouse(MouseButton::Left)) = e.release_args()
         {
-            is_pressed = false;
+            left_click = false;
         }
 
         if let Some(Button::Mouse(MouseButton::Left)) = e.press_args()
         {
-            is_pressed = true;
+            left_click = true;
+        }
+
+        if let Some(Button::Mouse(MouseButton::Right)) = e.release_args()
+        {
+            right_click = false;
+        }
+
+        if let Some(Button::Mouse(MouseButton::Right)) = e.press_args()
+        {
+            right_click = true;
         }
     }
 }

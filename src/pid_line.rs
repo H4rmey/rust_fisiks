@@ -10,6 +10,7 @@ fn new_vec2_with_angle(len: f64, angle: f64 /*in radians*/) -> Vector2<f64>
     Vector2::new(angle.cos() * len, angle.sin() * len)    
 }
 
+#[derive(Copy, Clone)]
 pub struct PID
 {
     pub error       : f64,
@@ -31,6 +32,23 @@ impl PID
         println!("error_old   : {:?}", &self.error_old   );
         println!("derivative  : {:?}", &self.derivative  );
         println!("integral    : {:?}", &self.integral    );
+    }
+
+    pub fn empty() -> PID
+    {      
+        let pid = PID
+        {
+            error      : 0f64,
+            error_old  : 0f64,
+            derivative : 0f64,
+            integral   : 0f64,
+        
+            kp  : 0.97f64,
+            ki  : 0.4f64,
+            kd  : 0.001f64,
+        };
+
+        pid
     }
 }
 
