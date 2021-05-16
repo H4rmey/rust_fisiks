@@ -91,13 +91,6 @@ fn main()
 
             wind.update(u);
             grass.update_wind(u, &wind);
-
-            if right_click 
-            {
-
-                // grass.position.distance(mouse_position);
-                // grass.pid_lines[0].pid.integral = -force;
-            }
               
             grass.update(u);
         }
@@ -116,17 +109,6 @@ fn main()
         if let Some(Button::Mouse(MouseButton::Left)) = e.press_args()
         {
             left_click = true;
-        }
-
-
-        if let Some(Button::Mouse(MouseButton::Right)) = e.release_args()
-        {
-            right_click = false;
-        }
-
-        if let Some(Button::Mouse(MouseButton::Right)) = e.press_args()
-        {
-            right_click = true;
         }
     }
 }

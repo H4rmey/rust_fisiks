@@ -48,7 +48,7 @@ impl Grass
             radius              : radius,
             angle               : 0f64,
             pid                 : pid,
-            bend_factor          : bend_factor,
+            bend_factor         : bend_factor,
         }
     }
 
@@ -121,7 +121,8 @@ impl Grass
             /*set the length and thiccness of the parts. */
             self.pid_lines[i].length    = self.part_lengths[i];
             self.pid_lines[i].radius    = self.radius;
-            self.pid_lines[i].angle     = self.pid_lines[i-1].angle + self.pid_lines[0].angle/self.ratio/self.bend_factor;            
+            self.pid_lines[i].angle     = self.pid_lines[i-1].angle + 
+                                            self.pid_lines[0].angle/self.ratio * self.bend_factor;            
 
             self.pid_lines[i].position  = self.pid_lines[i-1].end_point;
 
@@ -152,6 +153,6 @@ impl Grass
                                 self.total_line_length as f64, 
                                 0_f64, 
                                 10_f64
-                            );
+                            ) * w.direction;
     }
 }
