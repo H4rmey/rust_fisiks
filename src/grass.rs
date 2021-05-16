@@ -140,19 +140,19 @@ impl Grass
         }
 
         self.pid_lines[0].pid.integral += Tool::normalize_between(
-                                                    self.position.distance(w.position), 
+                                                    (w.position.x - self.position.x).abs(), 
                                                     0_f64, 
-                                                    self.total_line_length as f64, 
+                                                    100_f64, 
                                                     0.01, 
                                                     0.5
-                                                ) * u.dt;       
+                                                ) * u.dt * w.speed / 1500_f64;       
 
         self.bend_factor = Tool::normalize_between(
                                 self.position.distance(w.position), 
                                 0_f64, 
                                 self.total_line_length as f64, 
                                 0_f64, 
-                                10_f64
-                            ) * w.direction;
+                                0.8
+                            ) + w.direction * w.speed / 1500_f64;
     }
 }
