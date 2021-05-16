@@ -2,6 +2,7 @@ extern crate piston_window;
 
 mod grass;
 mod pid_line;
+mod wind_particle;
 
 use piston_window::*;
 use cgmath::*;
@@ -9,6 +10,7 @@ use cgmath::*;
 use std::{f64::consts::PI};
 
 use grass::*;
+use wind_particle::*;
 use pid_line::PID;
 
 
@@ -23,8 +25,6 @@ fn main()
             .resizable(false)
             .build()
             .unwrap_or_else(|e| { panic!("Failed to build PistonWindow: {}", e) });
-
-    // let mut grass: PidLine = PidLine::new(Vector2::new(320.0, 400.0), PI/4f64, 80f64, 2f64);
     
     let mut mouse_position: Vector2<f64> = Vector2::new(0f64,0f64);
 
@@ -53,9 +53,14 @@ fn main()
                         );
     
     grass.init();
-
-    let mut wind_point: Vector2<f64> = Vector2::new(0_f64, HEIGHT/2_f64-100_f64);
-    let mut wind_point2: Vector2<f64> = Vector2::new(-1000_f64, HEIGHT/2_f64+100_f64);
+    
+    let mut wind: WindParticle = WindParticle::new(
+                                            500_f64, 
+                                            Vector2::new(0_f64, HEIGHT/2_f64+100_f64),
+                                            -PI/40_f64,
+                                            [0.0, 0.0, 0.8, 1.0],
+                                            [WIDTH, HEIGHT]
+                                        );
     
 
     while let Some(e) = window.next() 
@@ -66,20 +71,8 @@ fn main()
             {
                 clear([0.0, 0.0, 0.0, 0.0], g);
                 
-                grass.draw(c, g);
-                ellipse(
-                        [0.0, 0.0, 0.8, 1.0], 
-                        [wind_point.x, wind_point.y, 10.0, 10.0], 
-                        c.transform, 
-                        g
-                    );
-                
-                ellipse(
-                        [0.0, 0.0, 0.8, 1.0], 
-                        [wind_point2.x, wind_point2.y, 10.0, 10.0], 
-                        c.transform, 
-                        g
-                    );
+                grass.draw(c, g);  
+                wind.draw(c, g);
             });
         }     
 
@@ -96,10 +89,8 @@ fn main()
                 grass.pid_lines[0].pid.error        = 0.0;
             }
 
-            wind_point.x += 500_f64*u.dt;
-            wind_point2.x += 500_f64*u.dt;
-            grass.update_wind(u, wind_point);
-            grass.update_wind(u, wind_point2);
+            wind.update(u);
+            grass.update_wind(u, &wind);
 
             if right_click 
             {

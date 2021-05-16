@@ -7,6 +7,7 @@ use std::{f64::consts::PI};
 
 use crate::pid_line::*;
 use tool::*;
+use crate::wind_particle::*;
 
 pub struct Grass
 {
@@ -130,15 +131,15 @@ impl Grass
         }   
     }   
 
-    pub fn update_wind(&mut self, u: UpdateArgs, v: Vector2<f64>)
+    pub fn update_wind(&mut self, u: UpdateArgs, w: &WindParticle)
     {
-        if (v.x - self.position.x).abs() > 100_f64
+        if (w.position.x - self.position.x).abs() > 100_f64
         {
             return;
         }
 
         self.pid_lines[0].pid.integral += Tool::normalize_between(
-                                                    self.position.distance(v), 
+                                                    self.position.distance(w.position), 
                                                     0_f64, 
                                                     self.total_line_length as f64, 
                                                     0.01, 
@@ -146,7 +147,7 @@ impl Grass
                                                 ) * u.dt;       
 
         self.bend_factor = Tool::normalize_between(
-                                self.position.distance(v), 
+                                self.position.distance(w.position), 
                                 0_f64, 
                                 self.total_line_length as f64, 
                                 0_f64, 
