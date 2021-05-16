@@ -26,19 +26,29 @@ fn main()
     // let mut grass: PidLine = PidLine::new(Vector2::new(320.0, 400.0), PI/4f64, 80f64, 2f64);
     
     let mut mouse_position: Vector2<f64> = Vector2::new(0f64,0f64);
-    let mut left_click: bool = false;
 
-    let mut right_click: bool = false;
-    let mut right_click_flag : bool = true;
-    let mut timer: f64 = 0.0;
-    let mut pid_clone: PID = PID::empty();
+    let mut left_click:     bool = false;
+    let mut right_click:    bool = false;
+    let     force:  f64 = 0.01f64;
         
+    let pid_controller : PID = PID{
+        error      : 0f64,
+        error_old  : 0f64,
+        derivative : 0f64,
+        integral   : 0f64,
+    
+        kp  : 0.97f64,
+        ki  : 0.4f64,
+        kd  : 0.001f64,
+    };
     let mut grass: Grass = Grass::new(
                             350, 
                             6, 
-                            2f64,
+                            1.6f64,
                             Vector2::new(WIDTH/2f64, 600.0),
-                            4f64
+                            4f64,
+                            pid_controller,
+                            2f64
                         );
     
     grass.init();
@@ -56,43 +66,33 @@ fn main()
         }     
 
         if let Some(u) = e.update_args()
-        {
-            // grass.update(u);            
-            grass.update(u, true);
-        
+        {        
             if left_click
             {
                 let y: f64 = mouse_position.y - grass.position.y;
                 let x: f64 = mouse_position.x - grass.position.x;
-                grass.pid_lines[0].angle = y.atan2(x) + PI/2f64;
-                grass.pid_lines[0].pid.integral = 0.0;
+
+                grass.pid_lines[0].angle            = y.atan2(x) + PI/2f64;
+                grass.pid_lines[0].pid.integral     = 0.0;
+                grass.pid_lines[0].pid.derivative   = 0.0;
+                grass.pid_lines[0].pid.error        = 0.0;
+
+                let l: f64 = grass.position.distance(mouse_position);
+                let from_min: f64   = 0_f64;
+                let from_max: f64   = grass.total_line_length as f64;
+                let to_min: f64     = 0_f64;
+                let to_max: f64     = 10_f64;
+                grass.bendfactor = to_min + (l-from_min)/(from_max - from_min)*(to_max-to_min);
             }
 
-            let force : f64 = 0.1;
-
-            if right_click && right_click_flag
+            if right_click 
             {
-                right_click_flag = false;
-
-                grass.pid_lines[0].angle = force*PI/180f64;    
-
-                grass.pid_lines[0].pid.kd *= -1f64;
-                grass.pid_lines[0].pid.ki *= -10f64;
-                grass.pid_lines[0].pid.kp *= -1f64;
+                grass.position.distance(mouse_position);
+                
+                grass.pid_lines[0].pid.integral = -force;
             }
-
-            if !right_click_flag
-            {
-                timer += u.dt;
-            }
-            if timer > force
-            {
-                right_click_flag = true;
-                timer = 0f64;
-                grass.pid_lines[0].pid.kd = grass.pid_lines[0].pid.kd.abs();
-                grass.pid_lines[0].pid.ki = grass.pid_lines[0].pid.ki.abs()/10f64;
-                grass.pid_lines[0].pid.kp = grass.pid_lines[0].pid.kp.abs();
-            }
+              
+            grass.update(u);
         }
 
         if let Some(args) = e.mouse_cursor_args()
@@ -110,6 +110,7 @@ fn main()
         {
             left_click = true;
         }
+
 
         if let Some(Button::Mouse(MouseButton::Right)) = e.release_args()
         {

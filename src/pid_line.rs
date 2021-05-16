@@ -1,14 +1,12 @@
+#[path = "./tool.rs"]
+mod tool;
 
 use piston_window::*;
 use cgmath::*;
-
 use std::{f64::consts::PI};
 
+use tool::*;
 
-fn new_vec2_with_angle(len: f64, angle: f64 /*in radians*/) -> Vector2<f64>
-{
-    Vector2::new(angle.cos() * len, angle.sin() * len)    
-}
 
 #[derive(Copy, Clone)]
 pub struct PID
@@ -34,6 +32,7 @@ impl PID
         println!("integral    : {:?}", &self.integral    );
     }
 
+    #[allow(dead_code)]
     pub fn empty() -> PID
     {      
         let pid = PID
@@ -107,25 +106,14 @@ impl PidLine
             angle   : f64,
             length  : f64,
             radius  : f64,
-            color   : [f32; 4]
+            color   : [f32; 4],
+            pid     : PID,
         ) -> PidLine
     {
         let l: Line = Line {
             color   : color,
             radius  : radius,
             shape   : line::Shape::Square,
-        };
-
-        let pid: PID = PID
-        {
-            error      : 0f64,
-            error_old  : 0f64,
-            derivative : 0f64,
-            integral   : 0f64,
-        
-            kp  : 0.99f64,
-            ki  : 0.4f64,
-            kd  : 0.01f64,
         };
 
         let pid_line: PidLine = PidLine
@@ -158,7 +146,7 @@ impl PidLine
 
 
         let start: Vector2<f64> = self.position;
-        let end: Vector2<f64> = new_vec2_with_angle(self.length, -self.angle + PI/2f64);
+        let end: Vector2<f64> = Tool::new_vec2_with_angle(self.length, -self.angle + PI/2f64);
         
         self.end_point = Vector2::new(end.x + start.x, start.y- end.y);  
     }

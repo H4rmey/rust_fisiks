@@ -1,15 +1,12 @@
+#[path = "./tool.rs"]
+mod tool;
 
 use piston_window::*;
 use cgmath::*;
-
-use crate::pid_line::*;
 use std::{f64::consts::PI};
 
-
-fn new_vec2_with_angle(len: f64, angle: f64 /*in radians*/) -> Vector2<f64>
-{
-    Vector2::new(angle.cos() * len, angle.sin() * len)    
-}
+use crate::pid_line::*;
+use crate::grass::tool::*;
 
 pub struct Grass
 {
@@ -21,7 +18,9 @@ pub struct Grass
     pub ratio               : f64,
     pub position            : Vector2<f64>,
     pub radius              : f64,
-    pub angle               : f64
+    pub angle               : f64,
+    pub pid                 : PID,
+    pub bendfactor          : f64,
 }
 
 impl Grass
@@ -32,6 +31,8 @@ impl Grass
             ratio               : f64,
             position            : Vector2<f64>,
             radius              : f64,
+            pid                 : PID,
+            bendfactor          : f64,
         )-> Grass
     {
         Grass
@@ -44,7 +45,9 @@ impl Grass
             ratio               : ratio,
             position            : position,
             radius              : radius,
-            angle               : 0f64
+            angle               : 0f64,
+            pid                 : pid,
+            bendfactor          : bendfactor,
         }
     }
 
@@ -98,32 +101,30 @@ impl Grass
                                         self.angle, 
                                         self.part_lengths[i], 
                                         self.radius,
-                                        [0.0, 0.5+i as f32/10f32, 0.0, 1.0] 
+                                        [0.0, 0.5+i as f32/10f32, 0.0, 1.0],
+                                        self.pid 
                                     )
                                 );
         }
     }
 
-    pub fn update(&mut self, u: UpdateArgs, do_update_pid: bool)
+    pub fn update(&mut self, u: UpdateArgs)
     {   
         self.pid_lines[0].length    = self.part_lengths[0];
         self.pid_lines[0].radius    = self.radius;
         self.pid_lines[0].position  = self.position;
-        if do_update_pid
-        {
-            self.pid_lines[0].update(u);
-        }
+        self.pid_lines[0].update(u);
 
         for i in 1..self.line_amount
         {
             /*set the length and thiccness of the parts. */
             self.pid_lines[i].length    = self.part_lengths[i];
             self.pid_lines[i].radius    = self.radius;
-            self.pid_lines[i].angle     = self.pid_lines[i-1].angle + self.pid_lines[0].angle/self.ratio;            
+            self.pid_lines[i].angle     = self.pid_lines[i-1].angle + self.pid_lines[0].angle/self.ratio/self.bendfactor;            
 
             self.pid_lines[i].position  = self.pid_lines[i-1].end_point;
 
-            let end: Vector2<f64> = new_vec2_with_angle(self.pid_lines[i].length, -self.pid_lines[i].angle + PI/2f64);
+            let end: Vector2<f64> = Tool::new_vec2_with_angle(self.pid_lines[i].length, -self.pid_lines[i].angle + PI/2f64);
             let start: Vector2<f64> = self.pid_lines[i].position;
             self.pid_lines[i].end_point = Vector2::new(end.x + start.x, start.y- end.y);
         }   
