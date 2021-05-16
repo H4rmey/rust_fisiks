@@ -6,7 +6,7 @@ use cgmath::*;
 use std::{f64::consts::PI};
 
 use crate::pid_line::*;
-use crate::grass::tool::*;
+use tool::*;
 
 pub struct Grass
 {
@@ -20,7 +20,7 @@ pub struct Grass
     pub radius              : f64,
     pub angle               : f64,
     pub pid                 : PID,
-    pub bendfactor          : f64,
+    pub bend_factor         : f64,
 }
 
 impl Grass
@@ -32,7 +32,7 @@ impl Grass
             position            : Vector2<f64>,
             radius              : f64,
             pid                 : PID,
-            bendfactor          : f64,
+            bend_factor         : f64,
         )-> Grass
     {
         Grass
@@ -47,7 +47,7 @@ impl Grass
             radius              : radius,
             angle               : 0f64,
             pid                 : pid,
-            bendfactor          : bendfactor,
+            bend_factor          : bend_factor,
         }
     }
 
@@ -120,7 +120,7 @@ impl Grass
             /*set the length and thiccness of the parts. */
             self.pid_lines[i].length    = self.part_lengths[i];
             self.pid_lines[i].radius    = self.radius;
-            self.pid_lines[i].angle     = self.pid_lines[i-1].angle + self.pid_lines[0].angle/self.ratio/self.bendfactor;            
+            self.pid_lines[i].angle     = self.pid_lines[i-1].angle + self.pid_lines[0].angle/self.ratio/self.bend_factor;            
 
             self.pid_lines[i].position  = self.pid_lines[i-1].end_point;
 
@@ -129,4 +129,28 @@ impl Grass
             self.pid_lines[i].end_point = Vector2::new(end.x + start.x, start.y- end.y);
         }   
     }   
+
+    pub fn update_wind(&mut self, u: UpdateArgs, v: Vector2<f64>)
+    {
+        if (v.x - self.position.x).abs() > 100_f64
+        {
+            return;
+        }
+
+        self.pid_lines[0].pid.integral += Tool::normalize_between(
+                                                    self.position.distance(v), 
+                                                    0_f64, 
+                                                    self.total_line_length as f64, 
+                                                    0.01, 
+                                                    0.5
+                                                ) * u.dt;       
+
+        self.bend_factor = Tool::normalize_between(
+                                self.position.distance(v), 
+                                0_f64, 
+                                self.total_line_length as f64, 
+                                0_f64, 
+                                10_f64
+                            );
+    }
 }

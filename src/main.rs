@@ -3,12 +3,13 @@ extern crate piston_window;
 mod grass;
 mod pid_line;
 
-use pid_line::PID;
 use piston_window::*;
 use cgmath::*;
-use grass::*;
 
 use std::{f64::consts::PI};
+
+use grass::*;
+use pid_line::PID;
 
 
 fn main() 
@@ -29,7 +30,6 @@ fn main()
 
     let mut left_click:     bool = false;
     let mut right_click:    bool = false;
-    let     force:  f64 = 0.01f64;
         
     let pid_controller : PID = PID{
         error      : 0f64,
@@ -41,6 +41,7 @@ fn main()
         ki  : 0.4f64,
         kd  : 0.001f64,
     };
+
     let mut grass: Grass = Grass::new(
                             350, 
                             6, 
@@ -53,6 +54,10 @@ fn main()
     
     grass.init();
 
+    let mut wind_point: Vector2<f64> = Vector2::new(0_f64, HEIGHT/2_f64-100_f64);
+    let mut wind_point2: Vector2<f64> = Vector2::new(-1000_f64, HEIGHT/2_f64+100_f64);
+    
+
     while let Some(e) = window.next() 
     {
         if let Some(_) = e.render_args()
@@ -62,6 +67,19 @@ fn main()
                 clear([0.0, 0.0, 0.0, 0.0], g);
                 
                 grass.draw(c, g);
+                ellipse(
+                        [0.0, 0.0, 0.8, 1.0], 
+                        [wind_point.x, wind_point.y, 10.0, 10.0], 
+                        c.transform, 
+                        g
+                    );
+                
+                ellipse(
+                        [0.0, 0.0, 0.8, 1.0], 
+                        [wind_point2.x, wind_point2.y, 10.0, 10.0], 
+                        c.transform, 
+                        g
+                    );
             });
         }     
 
@@ -76,20 +94,18 @@ fn main()
                 grass.pid_lines[0].pid.integral     = 0.0;
                 grass.pid_lines[0].pid.derivative   = 0.0;
                 grass.pid_lines[0].pid.error        = 0.0;
-
-                let l: f64 = grass.position.distance(mouse_position);
-                let from_min: f64   = 0_f64;
-                let from_max: f64   = grass.total_line_length as f64;
-                let to_min: f64     = 0_f64;
-                let to_max: f64     = 10_f64;
-                grass.bendfactor = to_min + (l-from_min)/(from_max - from_min)*(to_max-to_min);
             }
+
+            wind_point.x += 500_f64*u.dt;
+            wind_point2.x += 500_f64*u.dt;
+            grass.update_wind(u, wind_point);
+            grass.update_wind(u, wind_point2);
 
             if right_click 
             {
-                grass.position.distance(mouse_position);
-                
-                grass.pid_lines[0].pid.integral = -force;
+
+                // grass.position.distance(mouse_position);
+                // grass.pid_lines[0].pid.integral = -force;
             }
               
             grass.update(u);
