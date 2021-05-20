@@ -67,7 +67,7 @@ fn init(
         let wind: WindParticle = WindParticle::new(
                 setting.get_random_value("wind", "speed"), 
                 Vector2::new(0_f64, setting.get_random_value("wind", "height")),
-                -PI/400_f64,
+                setting.get_random_value("wind", "angle") * PI/180_f64,
                 [0.0, 0.0, 0.8, 1.0],
                 [width, height]
             );
@@ -113,7 +113,7 @@ fn main()
                     wind_field[i].draw(c, g);
                 }
 
-                rectangle([0.59, 0.29, 0.0, 1.0], [0.0, 600.0, 1280.0, 720.0], c.transform, g);
+                rectangle([0.59, 0.29, 0.0, 1.0], [0.0, 590.0, 1280.0, 720.0], c.transform, g);
             });
         }     
 

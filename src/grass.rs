@@ -13,6 +13,7 @@ pub struct Grass
 {
     pub pid_lines           : Vec<PidLine>,
     part_lengths            : Vec<f64>,
+    part_radie              : Vec<f64>,
 
     pub total_line_length   : u64, 
     pub line_amount         : usize, 
@@ -22,6 +23,7 @@ pub struct Grass
     pub angle               : f64,
     pub pid                 : PID,
     bend_factor             : f64,
+    base_line_radius        : f64,
 }
 
 impl Grass
@@ -39,8 +41,11 @@ impl Grass
         {
             pid_lines           : Vec::new(),
             part_lengths        : vec![0f64; line_amount],
+            
+            part_radie          : vec![0f64; line_amount],
 
             total_line_length   : total_line_length,
+            base_line_radius    : radius,
             line_amount         : line_amount,
             ratio               : ratio,
             position            : position,
@@ -78,6 +83,24 @@ impl Grass
         l
     }
 
+    #[allow(dead_code)]
+    fn calc_radie(
+            base_line_radius: f64, 
+            line_amount: usize, 
+            ratio : f64
+        ) -> Vec<f64>
+    {
+        let mut l: Vec<f64> = Vec::new();
+
+        for i in 0..line_amount
+        {
+            let value: f64 = base_line_radius / ratio.powf(i as f64 + 1f64);
+            l.push(value);
+        }
+
+        l
+    }
+
     pub fn draw(&mut self, c : Context, g : &mut G2d)
     {
         for i in 0..self.line_amount
@@ -94,13 +117,19 @@ impl Grass
                                         self.line_amount,
                                         self.ratio
                                     );
+
+        self.part_radie = Grass::calc_radie(
+                                        self.base_line_radius,
+                                        self.line_amount,
+                                        self.ratio
+                                    );
         for i in 0..self.line_amount
         {
             self.pid_lines.push(PidLine::new(
                                         Vector2::new(320.0, 400.0), 
                                         self.angle, 
                                         self.part_lengths[i], 
-                                        self.radius,
+                                        self.part_radie[i],
                                         [0.0, 0.5+i as f32/10f32, 0.0, 1.0],
                                         self.pid 
                                     )
@@ -119,7 +148,7 @@ impl Grass
         {
             /*set the length and thiccness of the parts. */
             self.pid_lines[i].length    = self.part_lengths[i];
-            self.pid_lines[i].radius    = self.radius;
+            self.pid_lines[i].radius    = self.part_radie[i];
             // self.pid_lines[i].angle     = self.pid_lines[i-1].angle + 
             //                                 self.pid_lines[0].angle/self.ratio * self.bend_factor;            
 
