@@ -8,7 +8,7 @@ pub mod Tool
     {
         Vector2::new(angle.cos() * len, angle.sin() * len)    
     }
-
+    
     pub fn normalize_between(
             num     : f64,
             from_min: f64,
