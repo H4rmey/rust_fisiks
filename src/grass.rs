@@ -164,7 +164,12 @@ impl Grass
 
     pub fn update_wind(&mut self, u: UpdateArgs, w: &WindParticle, s: &Settings)
     {
-        if (w.position.x - self.position.x).abs() > s.get_range_values("wind", "react")[1]
+        if (w.position.x - self.position.x).abs() > s.get_range_values("wind", "react_horizontal")[1]
+        {
+            return;
+        }
+
+        if (w.position.y - self.position.y).abs() > s.get_range_values("wind", "react_vertical")[1]
         {
             return;
         }
@@ -173,8 +178,8 @@ impl Grass
         {
             self.pid_lines[i].pid.integral += Tool::normalize_between(
                                                         (w.position.x - self.position.x).abs(), 
-                                                        s.get_range_values("wind", "react")[0], 
-                                                        s.get_range_values("wind", "react")[1], 
+                                                        s.get_range_values("wind", "react_horizontal")[0], 
+                                                        s.get_range_values("wind", "react_horizontal")[1], 
                                                         s.get_range_values("wind", "integral")[0], 
                                                         s.get_range_values("wind", "integral")[1]
                                                     ) * u.dt * w.speed * i as f64;       

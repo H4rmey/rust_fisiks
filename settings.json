@@ -1,7 +1,7 @@
 {
     "window_width": 1280,
     "window_height": 720,
-    "wind_partical_count": 1,
+    "wind_partical_count": 2,
     "grass_count": 1000,
 
     "ranges":
@@ -24,12 +24,13 @@
         },
         "wind":
         {
-            "react"    : [0.0, 100.0],
-            "integral" : [0.00001, 0.0004],
+            "react_horizontal"      : [0.0, 200.0],
+            "react_vertical"        : [0.0, 150.0],
+            "integral" : [0.00001, 0.001],
             "bend"     : [0.0, 0.00008],
-            "speed"    : [750, 900],
-            "angle"    : [-45, 45],
-            "height"   : [300, 600]
+            "speed"    : [400, 600],
+            "angle"    : [-20, 20],
+            "height"   : [500, 600]
         }   
     }    
 }
